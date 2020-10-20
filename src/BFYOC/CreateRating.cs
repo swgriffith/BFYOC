@@ -37,7 +37,28 @@ namespace BFYOC
                 return new NotFoundObjectResult("User or Product Not Found");
             };
 
-            return new OkResult();
+            RatingInput input = JsonConvert.DeserializeObject<RatingInput>(requestBody);
+
+            if(input.rating<0||input.rating>5)
+            {
+                return new BadRequestObjectResult("Rating must be between 0 & 5");
+            }
+
+            RatingOutput output = new RatingOutput();
+            output.id = System.Guid.NewGuid().ToString();
+            output.userId = input.userId;
+            output.productId = input.productId;
+            output.locationName = input.locationName;
+            output.rating = input.rating;
+            output.timestamp = DateTime.Now.ToString();
+            output.userNotes = input.userNotes;
+
+            //Persist to store
+            //document = new { Description = output, id = output.id };
+            //await ratingsOut.AddAsync(output);
+                
+            
+            return new OkObjectResult(output);
         }
 
 static async Task<Boolean> ValidateUser(dynamic input)
