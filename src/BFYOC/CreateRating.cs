@@ -7,11 +7,17 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Net.Http;
+using System.Net;
 
 namespace BFYOC
 {
+
     public static class CreateRating
     {
+        
+    private static readonly HttpClient HttpClient = new HttpClient();
+
         [FunctionName("CreateRating")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
@@ -19,18 +25,56 @@ namespace BFYOC
         {
             log.LogInformation("CreateRating Request Recieved");
 
-            // string name = req.Query["name"];
 
-            // string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            // dynamic data = JsonConvert.DeserializeObject(requestBody);
-            // name = name ?? data?.name;
+            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+            dynamic data = JsonConvert.DeserializeObject(requestBody);
 
-            // string responseMessage = string.IsNullOrEmpty(name)
-            //     ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-            //     : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            Boolean userValid = await ValidateUser(data);
+            Boolean productValid = await ValidateProduct(data);
+
+            if(!userValid||!productValid)
+            {
+                return new NotFoundObjectResult("User or Product Not Found");
+            };
 
             return new OkResult();
         }
+
+static async Task<Boolean> ValidateUser(dynamic input)
+    {
+        //We will make a GET request to a really cool website...
+       
+        string baseUrl = "https://serverlessohuser.trafficmanager.net/api/GetUser?userId=";   
+        var response = await HttpClient.GetAsync(baseUrl + input?.userId);
+        string data = await response.Content.ReadAsStringAsync();
+        
+        if(response.StatusCode != HttpStatusCode.OK)
+        {
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+    static async Task<Boolean> ValidateProduct(dynamic input)
+    {
+        //We will make a GET request to a really cool website...
+       
+        string baseUrl = "https://serverlessohproduct.trafficmanager.net/api/GetProduct?productId=";   
+        var response = await HttpClient.GetAsync(baseUrl + input?.productId);
+        string data = await response.Content.ReadAsStringAsync();
+        
+        if(response.StatusCode != HttpStatusCode.OK)
+        {
+            return false;
+        }
+        else{
+            return true;
+        }
+    }
+
+
     }
 
 
