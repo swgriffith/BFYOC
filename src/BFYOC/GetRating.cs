@@ -15,6 +15,12 @@ namespace BFYOC
         [FunctionName("GetRating")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            [CosmosDB(
+                databaseName: "bfyocteam4",
+                collectionName: "Ratings",
+                ConnectionStringSetting = "CosmosDBConnection",
+                Id = "{Query.ratingId}",
+                PartitionKey = "{Query.ratingId}")] RatingOutput ratingsOut
             ILogger log)
         {
             log.LogInformation("GetRating Request Recieved");

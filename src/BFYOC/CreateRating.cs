@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using System.Net.Http;
 using System.Net;
 
+
 namespace BFYOC
 {
 
@@ -21,6 +22,12 @@ namespace BFYOC
         [FunctionName("CreateRating")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Function, "post", Route = null)] HttpRequest req,
+            [CosmosDB(
+                databaseName: "bfyocteam4",
+                collectionName: "Ratings",
+                CreateIfNotExists = true,
+                ConnectionStringSetting = "CosmosDBConnection")]
+                IAsyncCollector<RatingOutput> ratingsOut,
             ILogger log)
         {
             log.LogInformation("CreateRating Request Recieved");
@@ -54,8 +61,7 @@ namespace BFYOC
             output.userNotes = input.userNotes;
 
             //Persist to store
-            //document = new { Description = output, id = output.id };
-            //await ratingsOut.AddAsync(output);
+            await ratingsOut.AddAsync(output);
                 
             
             return new OkObjectResult(output);
