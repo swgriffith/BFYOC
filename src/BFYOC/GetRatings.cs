@@ -20,7 +20,7 @@ namespace BFYOC
                 databaseName: "bfyocteam4",
                 collectionName: "Ratings",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT * FROM c order by c._ts desc")]
+                SqlQuery = "SELECT * FROM c WHERE c.userId = \"{Query.userId}\" order by c._ts desc")]
                 IEnumerable<RatingOutput> ratings,
             ILogger log)
         {
