@@ -15,12 +15,12 @@ namespace BFYOC
     {
         [FunctionName("GetRatings")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Function, "get", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Function, "get", Route = "getratings/{userid}")] HttpRequest req,
             [CosmosDB(
                 databaseName: "bfyocteam4",
                 collectionName: "Ratings",
                 ConnectionStringSetting = "CosmosDBConnection",
-                SqlQuery = "SELECT * FROM c WHERE c.userId = \"{Query.userId}\" order by c._ts desc")]
+                SqlQuery = "SELECT * FROM c WHERE c.userId = {userid} order by c._ts desc")]
                 IEnumerable<RatingOutput> ratings,
             ILogger log)
         {
